@@ -49,8 +49,10 @@ func NewServer(ctx context.Context, host string, port int, dataPath string, apiK
 		apiKey,
 		dataPath,
 	}
-	mux.HandleFunc("/user-model-metrics", server.userModelMetricHandle)
-	mux.HandleFunc("/ping", server.pingHandle)
+	mux.HandleFunc("POST /user-model-metrics", server.userModelMetricHandle)
+	mux.HandleFunc("POST /user-model-metrics/", server.userModelMetricHandle)
+	mux.HandleFunc("GET /ping", server.pingHandle)
+	mux.HandleFunc("GET /ping/", server.pingHandle)
 	return server
 }
 
