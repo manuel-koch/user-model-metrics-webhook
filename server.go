@@ -50,6 +50,7 @@ func NewServer(ctx context.Context, host string, port int, dataPath string, apiK
 		dataPath,
 	}
 	mux.HandleFunc("/user-model-metrics", server.userModelMetricHandle)
+	mux.HandleFunc("/ping", server.pingHandle)
 	return server
 }
 
@@ -127,6 +128,12 @@ func (s *Server) userModelMetricHandle(response http.ResponseWriter, request *ht
 	}
 
 	s.saveUserModelMetrics(userModelMetrics)
+}
+
+func (s *Server) pingHandle(response http.ResponseWriter, request *http.Request) {
+	defer request.Body.Close()
+	response.WriteHeader(http.StatusOK)
+	fmt.Fprintln(response, "Ok")
 }
 
 func (s *Server) saveUserModelMetrics(userModelMetrics *UserModelMetrics) error {
