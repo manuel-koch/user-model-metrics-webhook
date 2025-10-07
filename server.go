@@ -110,6 +110,14 @@ func (s *Server) isValidAPIKey(apiKey string) bool {
 
 func (s *Server) userModelMetricHandle(response http.ResponseWriter, request *http.Request) {
 	defer request.Body.Close()
+
+	if request.Method != "POST" {
+		slog.Error("Unsupported", "method", request.Method)
+		response.WriteHeader(http.StatusMethodNotAllowed)
+		fmt.Fprintln(response, "Method not allowed")
+		return
+	}
+
 	buffer := make([]byte, 2*1024)
 	n, err := request.Body.Read(buffer)
 	if (err != nil && err != io.EOF) || n == 0 {
@@ -124,6 +132,13 @@ func (s *Server) userModelMetricHandle(response http.ResponseWriter, request *ht
 		slog.Error("Failed to read payload", "error", err)
 		response.WriteHeader(http.StatusBadRequest)
 		fmt.Fprintln(response, fmt.Sprintf("Failed to parse payload: %s", err))
+		return
+	}
+
+	if userModelMetrics.CreatedAt.IsZero() || len(userModelMetrics.Model) == 0 {
+		slog.Error("Failed to read payload, invalid data")
+		response.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintln(response, fmt.Sprintf("Invalid data"))
 		return
 	}
 
